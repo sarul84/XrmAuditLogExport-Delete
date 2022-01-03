@@ -1,0 +1,26 @@
+[
+  {
+    "key": "primarymergestatement",
+    "sqlstatement": "DECLARE @SummaryOfChanges TABLE(Change VARCHAR(20)); MERGE INTO {0} WITH (HOLDLOCK) AS target USING (SELECT {1} FROM {2}) as source ON (target.[auditid] = source.[auditid]) WHEN MATCHED AND ({3}) THEN    UPDATE SET {4}    WHEN NOT MATCHED THEN  INSERT ({5}) VALUES ({6})  OUTPUT $action INTO @SummaryOfChanges;  SELECT Change, COUNT(1) AS CountPerChange FROM @SummaryOfChanges GROUP BY Change;"
+  },
+  {
+    "key": "attributemergestatement",
+    "sqlstatement": "DECLARE @SummaryOfChanges TABLE(Change VARCHAR(20)); MERGE INTO {0} WITH (HOLDLOCK) AS target USING (SELECT {1} FROM {2}) as source ON (target.[auditid] = source.[auditid] and target.fieldname = source.fieldname and CONVERT(NVARCHAR(MAX),target.oldvalue) = CONVERT(NVARCHAR(MAX),source.oldvalue) and CONVERT(NVARCHAR(MAX), target.newvalue) = CONVERT(NVARCHAR(MAX), source.newvalue)) WHEN MATCHED AND ({3}) THEN    UPDATE SET {4}    WHEN NOT MATCHED THEN  INSERT ({5}) VALUES ({6})  OUTPUT $action INTO @SummaryOfChanges;  SELECT Change, COUNT(1) AS CountPerChange FROM @SummaryOfChanges GROUP BY Change;"
+  },
+  {
+    "key": "getauditrecords",
+    "sqlstatement": "SELECT [AuditCount],[EntityId],[EntityName] FROM [dbo].[D365_AuditLog_Count_View]"
+  },
+  {
+    "key": "updateprimary",
+    "sqlstatement": "UPDATE P SET P.[new_isdeleted]= T.[new_isdeleted] FROM d365_audit_primary AS P INNER JOIN #TmpTable AS T ON P.[objectid] = T.[objectid];DROP TABLE #TmpTable;"
+  },
+  {
+    "key": "updateaudittables",
+    "sqlstatement": "UPDATE P SET {0} FROM {1} AS P INNER JOIN {2} AS T ON {3};DROP TABLE {4};"
+  },
+  {
+    "key": "createtemptable",
+    "sqlstatement": "CREATE TABLE #TmpTable([objectid] uniqueidentifier, [objecttypecode] nvarchar(128), [new_isdeleted] bit)"
+  }
+]
